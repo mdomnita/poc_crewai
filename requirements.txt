@@ -1,0 +1,9 @@
+crewai
+crewai-tools
+langchain
+langchain-google-genai
+langchain-community
+pypdf
+pandas
+faiss-cpu
+python-dotenv

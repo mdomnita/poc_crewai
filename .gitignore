@@ -1,0 +1,21 @@
+# Environments
+.env
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data files (keep the directory but ignore contents if desired, or just ignore specific extensions)
+# We might want to keep the data directory itself, but not the PDFs/CSVs
+data/*
+!data/.gitkeep
+
+# CrewAI/Langchain
+*.sqlite
+*.db
