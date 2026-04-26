@@ -14,7 +14,7 @@ To process textbook or reference book materials and automatically generate:
 *   `.env.example`: Template for environment variables.
 *   `data/`: Directory where you should place your `.pdf` and `.csv` files.
 *   `src/`:
-    *   `config.py`: Configuration for the LLM (Google Gemini 1.5 Pro) and Embeddings.
+    *   `config.py`: Configuration for the local LLM (`llama3` via Ollama) and Embeddings (`nomic-embed-text`).
     *   `rag_pipeline.py`: Code to ingest documents (Python pre-processing), chunk them, and build the FAISS vector database.
     *   `tools.py`: Custom Langchain tools that allow CrewAI agents to query the RAG pipeline.
     *   `agents.py`: Definition of the Multi-Agent workflow using CrewAI, including role definitions and prompt engineering.
@@ -35,16 +35,16 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment Variables
-1. Copy `.env.example` to `.env`:
+### 3. Setup Ollama (Local LLM)
+This project uses local models via Ollama. No API keys are required!
+
+1. Install [Ollama](https://ollama.com/) for your operating system.
+2. Start the Ollama server (or ensure it's running in the background).
+3. Pull the required models for generation and embeddings:
    ```bash
-   cp .env.example .env
+   ollama pull llama3
+   ollama pull nomic-embed-text
    ```
-2. Open `.env` and add your Google API Key:
-   ```
-   GOOGLE_API_KEY=your_actual_api_key_here
-   ```
-   *(Note: The codebase uses Gemini 1.5 Pro by default as it provides excellent context windows and reasoning capabilities. You can modify `src/config.py` if you prefer OpenAI or another provider).*
 
 ### 4. Add Your Data
 Place any educational PDF documents (textbooks, reference materials) or CSV data files into the `data/` directory.
