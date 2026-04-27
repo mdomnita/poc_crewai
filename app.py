@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 # ── Page config ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Educational Document Insight Assistant",
-    page_icon="📚",
+    page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -25,30 +25,31 @@ st.markdown(
         font-family: 'Inter', sans-serif;
     }
 
-    /* Dark gradient background */
+    /* Dark green gradient background */
     .stApp {
-        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-        color: #e8e8f0;
+        background: linear-gradient(135deg, #022c22, #064e3b, #022c22);
+        color: #ecfdf5;
     }
 
     /* Sidebar */
     section[data-testid="stSidebar"] {
-        background: rgba(255,255,255,0.04);
-        border-right: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        border-right: 1px solid rgba(16,185,129,0.15);
     }
 
     /* Cards */
     .glass-card {
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(16,185,129,0.2);
         border-radius: 16px;
         padding: 24px;
         margin-bottom: 20px;
-        backdrop-filter: blur(10px);
-        transition: box-shadow 0.3s ease;
+        backdrop-filter: blur(12px);
+        transition: all 0.3s ease;
     }
     .glass-card:hover {
-        box-shadow: 0 8px 32px rgba(99,102,241,0.25);
+        box-shadow: 0 8px 32px rgba(16,185,129,0.15);
+        border-color: rgba(16,185,129,0.4);
     }
 
     /* PDF badge */
@@ -56,20 +57,20 @@ st.markdown(
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(99,102,241,0.18);
-        border: 1px solid rgba(99,102,241,0.4);
+        background: rgba(16,185,129,0.12);
+        border: 1px solid rgba(16,185,129,0.3);
         border-radius: 8px;
         padding: 6px 12px;
         margin: 4px 4px 4px 0;
         font-size: 0.85rem;
-        color: #a5b4fc;
+        color: #6ee7b7;
         font-weight: 500;
     }
 
     /* Result box */
     .result-box {
-        background: rgba(16,185,129,0.08);
-        border: 1px solid rgba(16,185,129,0.3);
+        background: rgba(16,185,129,0.05);
+        border: 1px solid rgba(16,185,129,0.2);
         border-radius: 12px;
         padding: 20px;
         white-space: pre-wrap;
@@ -79,8 +80,8 @@ st.markdown(
     }
 
     .error-box {
-        background: rgba(239,68,68,0.10);
-        border: 1px solid rgba(239,68,68,0.35);
+        background: rgba(239,68,68,0.08);
+        border: 1px solid rgba(239,68,68,0.25);
         border-radius: 12px;
         padding: 16px;
         color: #fca5a5;
@@ -91,7 +92,7 @@ st.markdown(
     .section-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #c7d2fe;
+        color: #6ee7b7;
         margin-bottom: 10px;
         letter-spacing: 0.5px;
     }
@@ -107,37 +108,38 @@ st.markdown(
 
     /* Primary action buttons */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+        background: linear-gradient(135deg, #10b981, #059669) !important;
         color: white !important;
-        box-shadow: 0 4px 15px rgba(99,102,241,0.4) !important;
+        box-shadow: 0 4px 15px rgba(16,185,129,0.25) !important;
     }
     .stButton > button[kind="primary"]:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 25px rgba(99,102,241,0.55) !important;
+        box-shadow: 0 8px 25px rgba(16,185,129,0.4) !important;
     }
 
     .stTextInput > div > div > input,
     .stTextArea > div > div > textarea {
-        background: rgba(255,255,255,0.06) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
+        background: rgba(255,255,255,0.04) !important;
+        border: 1px solid rgba(16,185,129,0.2) !important;
         border-radius: 10px !important;
         color: #000000 !important;
     }
 
     /* Spinner text */
     .stSpinner > div > div {
-        color: #a5b4fc !important;
+        color: #6ee7b7 !important;
     }
 
     /* Expander */
     .streamlit-expanderHeader {
-        background: rgba(255,255,255,0.04) !important;
+        background: rgba(255,255,255,0.03) !important;
         border-radius: 10px !important;
-        color: #c7d2fe !important;
+        color: #6ee7b7 !important;
+        border-bottom: 1px solid rgba(16,185,129,0.1) !important;
     }
 
     /* Divider */
-    hr { border-color: rgba(255,255,255,0.1); }
+    hr { border-color: rgba(16,185,129,0.15); }
     </style>
     """,
     unsafe_allow_html=True,
@@ -169,6 +171,12 @@ def get_uploaded_pdfs():
 
 
 def save_uploaded_file(uploaded_file):
+    # Clear existing PDFs to process a single file at a time
+    for existing_file in glob.glob(os.path.join(DATA_DIR, "*.pdf")):
+        try:
+            os.remove(existing_file)
+        except Exception:
+            pass
     dest = os.path.join(DATA_DIR, uploaded_file.name)
     with open(dest, "wb") as f:
         f.write(uploaded_file.getbuffer())
@@ -198,10 +206,10 @@ def get_crew():
 def run_agent(operation: str, topic: str = "", question: str = ""):
     """Run a single-operation crew task and return the text result."""
     from crewai import Agent, Task, Crew, Process
-    from src.config import get_crewai_llm
+    from src.config import get_llm
     from src.tools import query_documents
 
-    llm = get_crewai_llm()
+    llm = get_llm()
 
     if operation == "summarize":
         agent = Agent(
@@ -222,9 +230,9 @@ def run_agent(operation: str, topic: str = "", question: str = ""):
                 "Search and retrieve ALL content from the uploaded documents. "
                 "Provide a comprehensive summary of the entire document, covering all major sections, "
                 "key concepts, definitions, main ideas, conclusions, and critical examples. "
-                "Do not focus on a single topic — summarize everything."
+                "Do not focus on a single topic - summarize everything."
             ),
-            expected_output="A well-structured, comprehensive summary (4-6 paragraphs) of the entire document content.",
+            expected_output="A well-structured, comprehensive summary (4-6 paragraphs) of the entire document content. IMPORTANT: You MUST return ONLY the plain text summary. NEVER return raw JSON or tool commands like 'analyze_tool_result'.",
             agent=agent,
         )
 
@@ -258,7 +266,7 @@ def run_agent(operation: str, topic: str = "", question: str = ""):
             goal="Generate challenging MCQs with correct answers and explanations based on the document text.",
             backstory=(
                 "You are a seasoned instructional designer who creates MCQs testing true comprehension. "
-                "Every question includes the correct answer and a brief explanation referencing the source."
+                "Every question includes the correct answer and a brief explanation referencing the source material."
             ),
             verbose=False,
             allow_delegation=False,
@@ -267,7 +275,8 @@ def run_agent(operation: str, topic: str = "", question: str = ""):
         )
         task = Task(
             description=(
-                f'Based on information about "{topic}", generate 5 Multiple Choice Questions (MCQs).\n'
+                f'Based on information from the document about "{topic}"' if topic.strip() else 'Based on the entire document content,'
+                " generate 5 Multiple Choice Questions (MCQs).\n"
                 "Requirements for each MCQ:\n"
                 "1. A clear question testing understanding.\n"
                 "2. 4 options labeled A, B, C, D.\n"
@@ -282,17 +291,16 @@ def run_agent(operation: str, topic: str = "", question: str = ""):
 
     crew = Crew(agents=[agent], tasks=[task], verbose=False, process=Process.sequential)
     result = crew.kickoff()
-    # CrewAI may return a CrewOutput object; convert to string
     return str(result)
 
 
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 📚 Doc Insight Assistant")
+    st.markdown("## 🌿 Doc Insight Assistant")
     st.markdown("---")
 
     # --- Upload section ---
-    st.markdown('<p class="section-title">📂 Upload PDF</p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-title">Upload PDF</p>', unsafe_allow_html=True)
     uploaded = st.file_uploader(
         "Choose a PDF file",
         type=["pdf"],
@@ -300,32 +308,31 @@ with st.sidebar:
     )
     if uploaded is not None:
         save_uploaded_file(uploaded)
-        st.success(f"✅ **{uploaded.name}** uploaded!")
-        # Invalidate cache so RAG re-initialises with new docs
+        st.success(f"**{uploaded.name}** uploaded!")
         init_rag.clear()
 
     st.markdown("---")
 
     # --- PDF list ---
-    st.markdown('<p class="section-title">📄 Uploaded Documents</p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-title">Uploaded Documents</p>', unsafe_allow_html=True)
     pdfs = get_uploaded_pdfs()
     if pdfs:
         for pdf in pdfs:
-            st.markdown(f'<div class="pdf-badge">📄 {pdf}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="pdf-badge">DOC {pdf}</div>', unsafe_allow_html=True)
     else:
         st.caption("No PDFs uploaded yet.")
 
     st.markdown("---")
 
     # --- Model info ---
-    st.markdown('<p class="section-title">⚙️ Model Config</p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-title">Model Config</p>', unsafe_allow_html=True)
     st.caption("LLM: llama3 (Ollama)")
     st.caption("Embeddings: nomic-embed-text")
     st.caption("Vector store: FAISS")
 
 
 # ── Main area ────────────────────────────────────────────────────────────────
-st.markdown("# 🎓 Educational Document Insight Assistant")
+st.markdown("# Educational Document Insight Assistant")
 st.markdown(
     "Upload PDFs and let the multi-agent crew analyse your documents."
 )
@@ -336,17 +343,17 @@ col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown('<p class="section-title">🔍 Topic <span style="font-size:0.8rem;color:#818cf8;">(for Insights / MCQ)</span></p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-title">Topic <span style="font-size:0.8rem;color:#6ee7b7;">(Required for Q&A, Optional for MCQ)</span></p>', unsafe_allow_html=True)
     topic = st.text_input(
         "Topic",
-        placeholder="e.g. Machine Learning, Neural Networks …",
+        placeholder="e.g. Machine Learning, Neural Networks ...",
         label_visibility="collapsed",
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
 with col2:
     st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-    st.markdown('<p class="section-title">❓ Specific Question <span style="font-size:0.8rem;color:#818cf8;">(for Insights)</span></p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-title">Specific Question <span style="font-size:0.8rem;color:#6ee7b7;">(for Insights)</span></p>', unsafe_allow_html=True)
     question = st.text_input(
         "Question",
         placeholder="e.g. What is gradient descent?",
@@ -355,13 +362,13 @@ with col2:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ── Action buttons ────────────────────────────────────────────────────────────
-st.markdown("### ⚡ Agent Operations")
+st.markdown("### Agent Operations")
 b1, b2, b3, b4 = st.columns(4, gap="medium")
 
-run_summary = b1.button("📝 Summarize", use_container_width=True, type="primary")
-run_insights = b2.button("💡 Insights / Q&A", use_container_width=True, type="primary")
-run_mcq = b3.button("📋 Generate MCQs", use_container_width=True, type="primary")
-clear_btn = b4.button("🗑️ Clear Results", use_container_width=True)
+run_summary = b1.button("Summarize", use_container_width=True, type="primary")
+run_insights = b2.button("Insights / Q&A", use_container_width=True, type="primary")
+run_mcq = b3.button("Generate MCQs", use_container_width=True, type="primary")
+clear_btn = b4.button("Clear Results", use_container_width=True)
 
 if clear_btn:
     clear_results()
@@ -369,13 +376,13 @@ if clear_btn:
 # ── Validation helper ─────────────────────────────────────────────────────────
 def validate_inputs(require_topic=False, require_question=False):
     if not get_uploaded_pdfs():
-        st.warning("⚠️ Please upload at least one PDF document first.")
+        st.warning("Please upload at least one PDF document first.")
         return False
     if require_topic and not topic.strip():
-        st.warning("⚠️ Please enter a **topic** before running this agent.")
+        st.warning("Please enter a topic before running this agent.")
         return False
     if require_question and not question.strip():
-        st.warning("⚠️ Please enter a **specific question** for Insights / Q&A.")
+        st.warning("Please enter a specific question for Insights / Q&A.")
         return False
     return True
 
@@ -383,7 +390,7 @@ def validate_inputs(require_topic=False, require_question=False):
 if run_summary:
     if validate_inputs():
         clear_results()
-        with st.spinner("🤖 Summarizer agent is working…"):
+        with st.spinner("Summarizer agent is working..."):
             try:
                 st.session_state.result_summary = run_agent("summarize")
                 st.session_state.error = None
@@ -394,7 +401,7 @@ if run_summary:
 if run_insights:
     if validate_inputs(require_topic=True, require_question=True):
         clear_results()
-        with st.spinner("🤖 Q&A agent is working…"):
+        with st.spinner("Q&A agent is working..."):
             try:
                 st.session_state.result_insights = run_agent("insights", topic, question)
                 st.session_state.error = None
@@ -403,9 +410,9 @@ if run_insights:
 
 # ── MCQ ───────────────────────────────────────────────────────────────────────
 if run_mcq:
-    if validate_inputs(require_topic=True):
+    if validate_inputs(require_topic=False):
         clear_results()
-        with st.spinner("🤖 MCQ generator agent is working…"):
+        with st.spinner("MCQ generator agent is working..."):
             try:
                 st.session_state.result_mcq = run_agent("mcq", topic)
                 st.session_state.error = None
@@ -415,7 +422,7 @@ if run_mcq:
 # ── Error display ─────────────────────────────────────────────────────────────
 if st.session_state.error:
     st.markdown(
-        f'<div class="error-box">❌ <strong>Error:</strong> {st.session_state.error}</div>',
+        f'<div class="error-box">Error: {st.session_state.error}</div>',
         unsafe_allow_html=True,
     )
 
@@ -429,42 +436,42 @@ has_result = any([
 ])
 
 if has_result:
-    st.markdown("## 📊 Results")
+    st.markdown("## Results")
 
     if st.session_state.result_summary:
-        with st.expander("📝 Summary", expanded=True):
+        with st.expander("Summary", expanded=True):
             st.markdown(
                 f'<div class="result-box">{st.session_state.result_summary}</div>',
                 unsafe_allow_html=True,
             )
             st.download_button(
-                "⬇️ Download Summary",
+                "Download Summary",
                 data=st.session_state.result_summary,
                 file_name="summary.txt",
                 mime="text/plain",
             )
 
     if st.session_state.result_insights:
-        with st.expander("💡 Insights / Q&A", expanded=True):
+        with st.expander("Insights / Q&A", expanded=True):
             st.markdown(
                 f'<div class="result-box">{st.session_state.result_insights}</div>',
                 unsafe_allow_html=True,
             )
             st.download_button(
-                "⬇️ Download Insights",
+                "Download Insights",
                 data=st.session_state.result_insights,
                 file_name=f"insights_{topic.replace(' ','_')}.txt",
                 mime="text/plain",
             )
 
     if st.session_state.result_mcq:
-        with st.expander("📋 Multiple Choice Questions", expanded=True):
+        with st.expander("Multiple Choice Questions", expanded=True):
             st.markdown(
                 f'<div class="result-box">{st.session_state.result_mcq}</div>',
                 unsafe_allow_html=True,
             )
             st.download_button(
-                "⬇️ Download MCQs",
+                "Download MCQs",
                 data=st.session_state.result_mcq,
                 file_name=f"mcqs_{topic.replace(' ','_')}.txt",
                 mime="text/plain",
@@ -473,8 +480,8 @@ else:
     st.markdown(
         """
         <div class="glass-card" style="text-align:center; padding: 48px;">
-            <div style="font-size:3rem;">🤖</div>
-            <p style="color:#a5b4fc; font-size:1.1rem; margin-top:12px;">
+            <div style="font-size:3rem;">🌿</div>
+            <p style="color:#6ee7b7; font-size:1.1rem; margin-top:12px;">
                 Upload a PDF and hit <strong>Summarize</strong> to get a full overview, or enter a topic for Insights / MCQ.
             </p>
         </div>

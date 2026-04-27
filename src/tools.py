@@ -1,9 +1,29 @@
 from crewai.tools import tool
 from .rag_pipeline import setup_rag_pipeline
+import os
 
-# Initialize RAG pipeline globally so that it's loaded once and used by the tool
-print("Initializing Global Document Retriever...")
-retriever = setup_rag_pipeline(data_dir="data")
+_cached_retriever = None
+_cached_mtime = None
+
+def get_retriever():
+    global _cached_retriever, _cached_mtime
+    try:
+        if not os.path.exists("data"):
+            return None
+        pdf_files = [f for f in os.listdir("data") if f.endswith('.pdf')]
+        if pdf_files:
+            latest_mtime = max(os.path.getmtime(os.path.join("data", f)) for f in pdf_files)
+            if _cached_retriever is None or latest_mtime != _cached_mtime:
+                print("Updating Document Retriever...")
+                _cached_retriever = setup_rag_pipeline(data_dir="data")
+                _cached_mtime = latest_mtime
+        else:
+            _cached_retriever = None
+            _cached_mtime = None
+    except Exception as e:
+        print(f"Error getting retriever: {e}")
+        _cached_retriever = None
+    return _cached_retriever
 
 @tool("Document Query Tool")
 def query_documents(query: str) -> str:
@@ -12,8 +32,9 @@ def query_documents(query: str) -> str:
     Pass a specific query string containing the core concepts or questions you want to search for.
     The tool will return the most relevant text excerpts from the documents.
     """
+    retriever = get_retriever()
     if retriever is None:
-        return "Error: No documents available in the data directory. Please upload PDF or CSV files."
+        return "Error: No documents available with text content. Please upload a valid PDF."
         
     print(f"\n[Tool Executing] Searching documents for: '{query}'")
     docs = retriever.invoke(query)
