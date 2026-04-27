@@ -22,7 +22,7 @@ def get_llm():
     model_name = os.getenv("MODEL_NAME", "llama3") # Default for Ollama if not specified
     
     if model_provider == "openai":
-        return ChatOpenAI(model=model_name, temperature=0.2)
+        return ChatOpenAI(model=model_name)
     else:
         # For Ollama
         raw_model = model_name.replace("ollama/", "")
@@ -37,7 +37,7 @@ def get_crewai_llm():
     model_name = os.getenv("MODEL_NAME", "ollama/llama3.2")
     
     if model_provider == "openai":
-        return LLM(model=model_name, temperature=0.2)
+        return LLM(model=model_name)
     else:
         if not model_name.startswith("ollama/"):
             model_name = f"ollama/{model_name}"
