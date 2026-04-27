@@ -121,7 +121,7 @@ st.markdown(
         background: rgba(255,255,255,0.06) !important;
         border: 1px solid rgba(255,255,255,0.15) !important;
         border-radius: 10px !important;
-        color: #e8e8f0 !important;
+        color: #000000 !important;
     }
 
     /* Spinner text */
@@ -175,6 +175,14 @@ def save_uploaded_file(uploaded_file):
     return dest
 
 
+def clear_results():
+    """Clear all stored results from session state."""
+    st.session_state.result_summary = None
+    st.session_state.result_insights = None
+    st.session_state.result_mcq = None
+    st.session_state.error = None
+
+
 @st.cache_resource(show_spinner=False)
 def init_rag(file_tuple):
     """Build/rebuild the RAG pipeline. Cached by the set of PDF filenames."""
@@ -190,10 +198,10 @@ def get_crew():
 def run_agent(operation: str, topic: str = "", question: str = ""):
     """Run a single-operation crew task and return the text result."""
     from crewai import Agent, Task, Crew, Process
-    from src.config import get_llm
+    from src.config import get_crewai_llm
     from src.tools import query_documents
 
-    llm = get_llm()
+    llm = get_crewai_llm()
 
     if operation == "summarize":
         agent = Agent(
@@ -356,10 +364,7 @@ run_mcq = b3.button("📋 Generate MCQs", use_container_width=True, type="primar
 clear_btn = b4.button("🗑️ Clear Results", use_container_width=True)
 
 if clear_btn:
-    st.session_state.result_summary = None
-    st.session_state.result_insights = None
-    st.session_state.result_mcq = None
-    st.session_state.error = None
+    clear_results()
 
 # ── Validation helper ─────────────────────────────────────────────────────────
 def validate_inputs(require_topic=False, require_question=False):
@@ -377,6 +382,7 @@ def validate_inputs(require_topic=False, require_question=False):
 # ── Summarize ─────────────────────────────────────────────────────────────────
 if run_summary:
     if validate_inputs():
+        clear_results()
         with st.spinner("🤖 Summarizer agent is working…"):
             try:
                 st.session_state.result_summary = run_agent("summarize")
@@ -387,6 +393,7 @@ if run_summary:
 # ── Insights / Q&A ────────────────────────────────────────────────────────────
 if run_insights:
     if validate_inputs(require_topic=True, require_question=True):
+        clear_results()
         with st.spinner("🤖 Q&A agent is working…"):
             try:
                 st.session_state.result_insights = run_agent("insights", topic, question)
@@ -397,6 +404,7 @@ if run_insights:
 # ── MCQ ───────────────────────────────────────────────────────────────────────
 if run_mcq:
     if validate_inputs(require_topic=True):
+        clear_results()
         with st.spinner("🤖 MCQ generator agent is working…"):
             try:
                 st.session_state.result_mcq = run_agent("mcq", topic)

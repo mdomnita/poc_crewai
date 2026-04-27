@@ -1,4 +1,4 @@
-from langchain.tools import tool
+from crewai.tools import tool
 from .rag_pipeline import setup_rag_pipeline
 
 # Initialize RAG pipeline globally so that it's loaded once and used by the tool

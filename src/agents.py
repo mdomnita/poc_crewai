@@ -1,10 +1,10 @@
-from crewai import Agent, Task, Crew, Process
+from crewai import Agent, Task, Crew, Process, LLM
 from .tools import query_documents
-from .config import get_llm
+from .config import get_crewai_llm
 
 class EducationCrew:
     def __init__(self):
-        self.llm = get_llm()
+        self.llm = get_crewai_llm()
         
     def create_agents(self):
         # 1. Summarization Agent

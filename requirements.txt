@@ -10,3 +10,4 @@ pandas
 faiss-cpu
 python-dotenv
 streamlit
+litellm
