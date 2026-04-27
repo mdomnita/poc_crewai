@@ -4,6 +4,7 @@ langchain
 langchain-text-splitters
 langchain-google-genai
 langchain-community
+langchain-ollama
 pypdf
 pandas
 faiss-cpu

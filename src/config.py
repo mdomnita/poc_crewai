@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 # from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 # For Ollama
-from langchain_community.chat_models import ChatOllama
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_ollama import ChatOllama, OllamaEmbeddings
 
 load_dotenv()
 
