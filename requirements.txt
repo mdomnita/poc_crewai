@@ -1,9 +1,11 @@
 crewai
 crewai-tools
 langchain
+langchain-text-splitters
 langchain-google-genai
 langchain-community
 pypdf
 pandas
 faiss-cpu
 python-dotenv
+streamlit

@@ -2,7 +2,7 @@ import os
 import glob
 from langchain_community.document_loaders import PyPDFLoader, CSVLoader
 from langchain_community.vectorstores import FAISS
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from .config import get_embeddings
 
 def load_documents(data_dir="data"):
